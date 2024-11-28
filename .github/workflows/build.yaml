@@ -1,0 +1,52 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'yarn'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: yarn install
+
+      # Step 4: Build the project
+      - name: Build the project
+        run: yarn build
+
+      # Step 5: Upload build artifacts
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts 
+          path: dist/ 
+
+# Step 5: Deploy to another repository
+      - name: Deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.FRONTEND_DEPLOY }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git clone https://x-access-token:${{ secrets.FRONTEND_DEPLOY }}@github.com/LightWave-HQ/Lightwave.git target-repo
+          rm -rf target-repo/data/*
+          cp -r dist/* target-repo/data
+          cd target-repo
+          git add --all
+          git commit -m "Deploy built files"
+          git push
