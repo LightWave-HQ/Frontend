@@ -11,7 +11,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 
-import { useMediaQuery } from "@mui/material";
 import theme from "./Theme";
 
 const App = () => {
@@ -20,16 +19,25 @@ const App = () => {
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-
   // Simulate loading
   useEffect(() => {
     setTimeout(() => setLoading(false), 2000);
   }, []);
 
   // Toggle button handler
-  const handleToggle = () => {
-    setIsOn(!isOn);
+  const handleToggle = async () => {
+    try {
+      const response = await fetch("/toggle", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      setIsOn(data.isOn);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   // Tab change handler
