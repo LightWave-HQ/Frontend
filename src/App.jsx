@@ -7,11 +7,10 @@ import {
   TextField,
   Paper,
   Typography,
-  createTheme,
   ThemeProvider,
-  CssBaseline,
   CircularProgress,
 } from "@mui/material";
+
 import { useMediaQuery } from "@mui/material";
 import theme from "./Theme";
 
@@ -25,7 +24,7 @@ const App = () => {
 
   // Simulate loading
   useEffect(() => {
-    setTimeout(() => setLoading(false), 2000); // Simulate a 2-second loading
+    setTimeout(() => setLoading(false), 2000);
   }, []);
 
   // Toggle button handler
@@ -93,7 +92,6 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
       <Box
         sx={{
           minHeight: "100vh",
@@ -103,18 +101,22 @@ const App = () => {
           justifyContent: "center",
           gap: 4,
           padding: 2,
+          backgroundColor: "#f9f9f9",
         }}
       >
         {/* Toggle Button */}
         <Paper
-          elevation={3}
+          elevation={5}
           sx={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             padding: 4,
             borderRadius: 2,
-            minWidth: 400,
+            minWidth: 700,
+            minHeight: 600,
+            backgroundColor: "#ffffff",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
           }}
         >
           <Button
@@ -124,27 +126,39 @@ const App = () => {
               width: 120,
               height: 120,
               borderRadius: "50%",
-              backgroundColor: isOn ? "success.main" : "error.main",
+              backgroundColor: "#26a69a",
               fontSize: "1.5rem",
               color: "white",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                backgroundColor: "#00796b",
+              },
             }}
           >
             {isOn ? "ON" : "OFF"}
           </Button>
 
           {/* Digital Clock */}
-          <Typography
-            variant="h4"
+          <Box
             sx={{
-              marginTop: 4,
-              fontWeight: "bold",
-              textAlign: "center",
-              color: "primary.main",
-              letterSpacing: 1.5,
+              margin: 2,
+              borderRadius: 2,
+              backgroundColor: "#f1f1f1",
             }}
           >
-            {currentTime}
-          </Typography>
+            <Typography
+              variant="h4"
+              sx={{
+                margin: 2,
+                fontWeight: "bold",
+                textAlign: "center",
+                color: "primary.main",
+                letterSpacing: 1.5,
+              }}
+            >
+              {currentTime}
+            </Typography>
+          </Box>
 
           {/* Tabs */}
           <Box sx={{ width: "100%", marginTop: 4 }}>
@@ -162,38 +176,63 @@ const App = () => {
             </Tabs>
             {tabValue === 0 && (
               <TabPanel>
-                <Typography variant="h6">General Settings</Typography>
+                <Typography variant="h6" sx={{ textAlign: "center" }}>
+                  General Settings
+                </Typography>
                 <Box
                   component="form"
                   onSubmit={handleGeneralSubmit}
                   sx={{
                     display: "flex",
-                    flexDirection: isSmallScreen ? "column" : "row",
+                    flexDirection: "column",
                     gap: 2,
                     marginTop: 2,
                   }}
                 >
-                  <TextField
-                    name="onTime"
-                    label="Light On Time"
-                    variant="outlined"
-                    fullWidth
-                  />
-                  <TextField
-                    name="offTime"
-                    label="Light Off Time"
-                    variant="outlined"
-                    fullWidth
-                  />
-                  <Button type="submit" variant="contained">
-                    Save
-                  </Button>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: 2,
+                      marginTop: 2,
+                    }}
+                  >
+                    <TextField
+                      name="onTime"
+                      label="Light On Time"
+                      variant="outlined"
+                      fullWidth
+                    />
+                    <TextField
+                      name="offTime"
+                      label="Light Off Time"
+                      variant="outlined"
+                      fullWidth
+                    />
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginTop: 2,
+                    }}
+                  >
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{ width: 120, background: "#26a69a" }}
+                    >
+                      Save
+                    </Button>
+                  </Box>
                 </Box>
               </TabPanel>
             )}
             {tabValue === 1 && (
               <TabPanel>
-                <Typography variant="h6">Wi-Fi Configuration</Typography>
+                <Typography variant="h6" sx={{ textAlign: "center" }}>
+                  Wi-Fi Configuration
+                </Typography>
                 <Box
                   component="form"
                   onSubmit={handleWiFiSubmit}
@@ -204,33 +243,56 @@ const App = () => {
                     marginTop: 2,
                   }}
                 >
-                  <TextField
-                    name="ssid"
-                    label="SSID"
-                    variant="outlined"
-                    fullWidth
-                  />
-                  <TextField
-                    name="password"
-                    label="Password"
-                    type="password"
-                    variant="outlined"
-                    fullWidth
-                  />
-                  <Button type="submit" variant="contained">
-                    Connect
-                  </Button>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: 2,
+                      marginTop: 2,
+                    }}
+                  >
+                    <TextField
+                      name="ssid"
+                      label="SSID"
+                      variant="outlined"
+                      fullWidth
+                    />
+                    <TextField
+                      name="password"
+                      label="Password"
+                      type="password"
+                      variant="outlined"
+                      fullWidth
+                    />
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginTop: 2,
+                    }}
+                  >
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{ width: 120, background: "#26a69a" }}
+                    >
+                      Connect
+                    </Button>
+                  </Box>
                 </Box>
               </TabPanel>
             )}
             {tabValue === 2 && (
               <TabPanel>
-                <Typography variant="h6">Set Current Time</Typography>
+                <Typography variant="h6" sx={{ textAlign: "center" }}>
+                  Set Current Time
+                </Typography>
                 <Box
                   component="form"
                   onSubmit={handleSetTimeSubmit}
                   sx={{
-                    marginTop: 2,
+                    marginTop: 4,
                   }}
                 >
                   <TextField
@@ -239,13 +301,24 @@ const App = () => {
                     variant="outlined"
                     fullWidth
                   />
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    sx={{ marginTop: 2 }}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginTop: 2,
+                    }}
                   >
-                    Set Time
-                  </Button>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{
+                        width: 120,
+                        background: "#26a69a",
+                      }}
+                    >
+                      Set Time
+                    </Button>
+                  </Box>
                 </Box>
               </TabPanel>
             )}
@@ -262,9 +335,8 @@ const TabPanel = ({ children }) => {
     <Box
       sx={{
         padding: 2,
-        border: "1px solid #e0e0e0",
-        borderRadius: 1,
         marginTop: 2,
+        backgroundColor: "#fff",
       }}
     >
       {children}
