@@ -55,34 +55,97 @@ const App = () => {
       setCurrentTime(`${hours}:${minutes} ${ampm}`);
     }, 1000);
 
-    return () => clearInterval(interval); // Cleanup
+    return () => clearInterval(interval);
   }, []);
 
-  // Form handlers
-  const handleWiFiSubmit = (event) => {
+  const handleWiFiSubmit = async (event) => {
     event.preventDefault();
     const ssid = event.target.ssid.value;
     const password = event.target.password.value;
+    const payload = {
+      ssid: ssid,
+      password: password,
+    };
 
-    alert(`Wi-Fi Configuration: SSID=${ssid}, Password=${password}`);
+    try {
+      const response = await fetch("/connect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      console.log("Wi-Fi connection status:", data);
+      alert(`Wi-Fi Configuration: SSID=${ssid}, Password=${password}`);
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error connecting to Wi-Fi");
+    }
   };
 
-  const handleGeneralSubmit = (event) => {
+  const handleGeneralSubmit = async (event) => {
     event.preventDefault();
     const onTime = event.target.onTime.value;
     const offTime = event.target.offTime.value;
 
-    alert(`General Settings: OnTime=${onTime}, OffTime=${offTime}`);
+    const onDate = new Date(onTime);
+    const offDate = new Date(offTime);
+
+    const onEpochTime = Math.floor(onDate.getTime() / 1000);
+    const offEpochTime = Math.floor(offDate.getTime() / 1000);
+
+    const payload = {
+      onTime: onEpochTime,
+      offTime: offEpochTime,
+    };
+
+    try {
+      const response = await fetch("/setup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      console.log("Server response:", data);
+      alert(
+        `General Settings: OnTime=${onEpochTime} (Epoch Time), OffTime=${offEpochTime} (Epoch Time)`
+      );
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error saving general settings");
+    }
   };
 
-  const handleSetTimeSubmit = (event) => {
+  const handleSetTimeSubmit = async (event) => {
     event.preventDefault();
     const currentTime = event.target.currentTime.value;
 
-    alert(`Set Time: ${currentTime}`);
+    const currentDate = new Date(currentTime);
+    const epochTime = Math.floor(currentDate.getTime() / 1000);
+    const payload = {
+      currentTime: epochTime,
+    };
+
+    try {
+      const response = await fetch("/setTime", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      console.log("Server response:", data);
+      alert(`Set Time: ${epochTime} (Epoch Time)`);
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error setting time");
+    }
   };
 
-  // Show loading spinner
   if (loading) {
     return (
       <Box
