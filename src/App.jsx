@@ -19,6 +19,169 @@ const App = () => {
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  const GeneralSetting = () => {
+    return (
+      <TabPanel>
+        <Typography variant="h6" sx={{ textAlign: "center" }}>
+          General Settings
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={handleGeneralSubmit}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            marginTop: 2,
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              gap: 2,
+              marginTop: 2,
+            }}
+          >
+            <TextField
+              name="onTime"
+              label="Light On Time"
+              variant="outlined"
+              fullWidth
+            />
+            <TextField
+              name="offTime"
+              label="Light Off Time"
+              variant="outlined"
+              fullWidth
+            />
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: 2,
+            }}
+          >
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ width: 120, background: "#26a69a" }}
+            >
+              Save
+            </Button>
+          </Box>
+        </Box>
+      </TabPanel>
+    )
+  }
+
+  const WifiConfig = () => {
+    return (
+      <TabPanel>
+        <Typography variant="h6" sx={{ textAlign: "center" }}>
+          Wi-Fi Configuration
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={handleWiFiSubmit}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            marginTop: 2,
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              gap: 2,
+              marginTop: 2,
+            }}
+          >
+            <TextField
+              name="ssid"
+              label="SSID"
+              variant="outlined"
+              fullWidth
+            />
+            <TextField
+              name="password"
+              label="Password"
+              type="password"
+              variant="outlined"
+              fullWidth
+            />
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: 2,
+            }}
+          >
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ width: 120, background: "#26a69a" }}
+            >
+              Connect
+            </Button>
+          </Box>
+        </Box>
+      </TabPanel>
+    )
+  }
+
+  const SetTime = () => {
+    return (
+      <TabPanel>
+        <Typography variant="h6" sx={{ textAlign: "center" }}>
+          Set Current Time
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={handleSetTimeSubmit}
+          sx={{
+            marginTop: 4,
+          }}
+        >
+          <TextField
+            name="currentTime"
+            label="Current Time"
+            variant="outlined"
+            fullWidth
+          />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: 2,
+            }}
+          >
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                width: 120,
+                background: "#26a69a",
+              }}
+            >
+              Set Time
+            </Button>
+          </Box>
+        </Box>
+      </TabPanel>
+    )
+  }
+
+  const tabs = {
+    0: <GeneralSetting />,
+    1: <WifiConfig />,
+    2: <SetTime />
+  };
+
   // Simulate loading
   useEffect(() => {
     setTimeout(() => setLoading(false), 2000);
@@ -27,7 +190,7 @@ const App = () => {
   // Toggle button handler
   const handleToggle = async () => {
     try {
-      const response = await fetch("/toggle", {
+      const response = await fetch("/api/toggle", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -68,7 +231,7 @@ const App = () => {
     };
 
     try {
-      const response = await fetch("/connect", {
+      const response = await fetch("/api/connect", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -101,7 +264,7 @@ const App = () => {
     };
 
     try {
-      const response = await fetch("/setup", {
+      const response = await fetch("/api/setup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -130,7 +293,7 @@ const App = () => {
     };
 
     try {
-      const response = await fetch("/setTime", {
+      const response = await fetch("/api/setTime", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -245,154 +408,7 @@ const App = () => {
               <Tab label="Wi-Fi" id="tab-1" aria-controls="tabpanel-1" />
               <Tab label="Set Time" id="tab-2" aria-controls="tabpanel-2" />
             </Tabs>
-            {tabValue === 0 && (
-              <TabPanel>
-                <Typography variant="h6" sx={{ textAlign: "center" }}>
-                  General Settings
-                </Typography>
-                <Box
-                  component="form"
-                  onSubmit={handleGeneralSubmit}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2,
-                    marginTop: 2,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      gap: 2,
-                      marginTop: 2,
-                    }}
-                  >
-                    <TextField
-                      name="onTime"
-                      label="Light On Time"
-                      variant="outlined"
-                      fullWidth
-                    />
-                    <TextField
-                      name="offTime"
-                      label="Light Off Time"
-                      variant="outlined"
-                      fullWidth
-                    />
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      marginTop: 2,
-                    }}
-                  >
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      sx={{ width: 120, background: "#26a69a" }}
-                    >
-                      Save
-                    </Button>
-                  </Box>
-                </Box>
-              </TabPanel>
-            )}
-            {tabValue === 1 && (
-              <TabPanel>
-                <Typography variant="h6" sx={{ textAlign: "center" }}>
-                  Wi-Fi Configuration
-                </Typography>
-                <Box
-                  component="form"
-                  onSubmit={handleWiFiSubmit}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2,
-                    marginTop: 2,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      gap: 2,
-                      marginTop: 2,
-                    }}
-                  >
-                    <TextField
-                      name="ssid"
-                      label="SSID"
-                      variant="outlined"
-                      fullWidth
-                    />
-                    <TextField
-                      name="password"
-                      label="Password"
-                      type="password"
-                      variant="outlined"
-                      fullWidth
-                    />
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      marginTop: 2,
-                    }}
-                  >
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      sx={{ width: 120, background: "#26a69a" }}
-                    >
-                      Connect
-                    </Button>
-                  </Box>
-                </Box>
-              </TabPanel>
-            )}
-            {tabValue === 2 && (
-              <TabPanel>
-                <Typography variant="h6" sx={{ textAlign: "center" }}>
-                  Set Current Time
-                </Typography>
-                <Box
-                  component="form"
-                  onSubmit={handleSetTimeSubmit}
-                  sx={{
-                    marginTop: 4,
-                  }}
-                >
-                  <TextField
-                    name="currentTime"
-                    label="Current Time"
-                    variant="outlined"
-                    fullWidth
-                  />
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      marginTop: 2,
-                    }}
-                  >
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      sx={{
-                        width: 120,
-                        background: "#26a69a",
-                      }}
-                    >
-                      Set Time
-                    </Button>
-                  </Box>
-                </Box>
-              </TabPanel>
-            )}
+            {tabs[tabValue]}
           </Box>
         </Paper>
       </Box>
