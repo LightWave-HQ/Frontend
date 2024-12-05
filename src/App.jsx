@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
@@ -9,15 +9,32 @@ import {
   Typography,
   ThemeProvider,
   CircularProgress,
+  Grid,
 } from "@mui/material";
+import { Save } from "@mui/icons-material";
+import SendIcon from '@mui/icons-material/Send';
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import {
+  MobileTimePicker,
+  LocalizationProvider,
+} from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import theme from "./Theme";
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const App = () => {
   const [isOn, setIsOn] = useState(false);
-  const [currentTime, setCurrentTime] = useState("");
+  const [currentTimeSelected, setCurrentTimeSelected] = useState(dayjs());
+  const currentTime = useRef(dayjs());
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [startTime, setStartTime] = useState(dayjs());
+  const [endTime, setEndTime] = useState(dayjs());
 
   const GeneralSetting = () => {
     return (
@@ -41,20 +58,23 @@ const App = () => {
               flexDirection: "row",
               gap: 2,
               marginTop: 2,
+              flexWrap: "wrap",
             }}
           >
-            <TextField
-              name="onTime"
-              label="Light On Time"
-              variant="outlined"
-              fullWidth
-            />
-            <TextField
-              name="offTime"
-              label="Light Off Time"
-              variant="outlined"
-              fullWidth
-            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <MobileTimePicker
+                label="Start Time"
+                value={startTime}
+                onChange={(newValue) => setStartTime(newValue)}
+                sx={{ flexGrow: 1, minWidth: 200 }}
+              />
+              <MobileTimePicker
+                label="End Time"
+                value={endTime}
+                onChange={(newValue) => setEndTime(newValue)}
+                sx={{ flexGrow: 1, minWidth: 200 }}
+              />
+            </LocalizationProvider>
           </Box>
           <Box
             sx={{
@@ -67,14 +87,15 @@ const App = () => {
               type="submit"
               variant="contained"
               sx={{ width: 120, background: "#26a69a" }}
+              startIcon={<Save />}
             >
               Save
             </Button>
           </Box>
         </Box>
       </TabPanel>
-    )
-  }
+    );
+  };
 
   const WifiConfig = () => {
     return (
@@ -98,6 +119,7 @@ const App = () => {
               flexDirection: "row",
               gap: 2,
               marginTop: 2,
+              flexWrap: "wrap",
             }}
           >
             <TextField
@@ -125,14 +147,15 @@ const App = () => {
               type="submit"
               variant="contained"
               sx={{ width: 120, background: "#26a69a" }}
+              startIcon={<SendIcon />}
             >
               Connect
             </Button>
           </Box>
         </Box>
       </TabPanel>
-    )
-  }
+    );
+  };
 
   const SetTime = () => {
     return (
@@ -144,15 +167,20 @@ const App = () => {
           component="form"
           onSubmit={handleSetTimeSubmit}
           sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
             marginTop: 4,
           }}
         >
-          <TextField
-            name="currentTime"
-            label="Current Time"
-            variant="outlined"
-            fullWidth
-          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <MobileTimePicker
+              label="Current Time"
+              value={currentTimeSelected}
+              onChange={(newValue) => setCurrentTimeSelected(newValue)}
+              sx={{ flexGrow: 1, minWidth: 200 }}
+            />
+          </LocalizationProvider>
           <Box
             sx={{
               display: "flex",
@@ -173,13 +201,13 @@ const App = () => {
           </Box>
         </Box>
       </TabPanel>
-    )
-  }
+    );
+  };
 
   const tabs = {
     0: <GeneralSetting />,
     1: <WifiConfig />,
-    2: <SetTime />
+    2: <SetTime />,
   };
 
   // Simulate loading
@@ -211,13 +239,9 @@ const App = () => {
   // Clock updater
   useEffect(() => {
     const interval = setInterval(() => {
-      const now = new Date();
-      const hours = now.getHours() % 12 || 12;
-      const minutes = now.getMinutes().toString().padStart(2, "0");
-      const ampm = now.getHours() >= 12 ? "PM" : "AM";
-      setCurrentTime(`${hours}:${minutes} ${ampm}`);
+      const now = dayjs();
+      currentTime.current = now;
     }, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -239,8 +263,6 @@ const App = () => {
         body: JSON.stringify(payload),
       });
       const data = await response.json();
-      console.log("Wi-Fi connection status:", data);
-      alert(`Wi-Fi Configuration: SSID=${ssid}, Password=${password}`);
     } catch (error) {
       console.error("Error:", error);
       alert("Error connecting to Wi-Fi");
@@ -249,14 +271,9 @@ const App = () => {
 
   const handleGeneralSubmit = async (event) => {
     event.preventDefault();
-    const onTime = event.target.onTime.value;
-    const offTime = event.target.offTime.value;
 
-    const onDate = new Date(onTime);
-    const offDate = new Date(offTime);
-
-    const onEpochTime = Math.floor(onDate.getTime() / 1000);
-    const offEpochTime = Math.floor(offDate.getTime() / 1000);
+    const onEpochTime = startTime.unix() + startTime.utcOffset() * 60;
+    const offEpochTime = endTime.unix() + startTime.utcOffset() * 60;
 
     const payload = {
       onTime: onEpochTime,
@@ -271,11 +288,8 @@ const App = () => {
         },
         body: JSON.stringify(payload),
       });
-      const data = await response.json();
+      const data = response;
       console.log("Server response:", data);
-      alert(
-        `General Settings: OnTime=${onEpochTime} (Epoch Time), OffTime=${offEpochTime} (Epoch Time)`
-      );
     } catch (error) {
       console.error("Error:", error);
       alert("Error saving general settings");
@@ -284,10 +298,8 @@ const App = () => {
 
   const handleSetTimeSubmit = async (event) => {
     event.preventDefault();
-    const currentTime = event.target.currentTime.value;
-
-    const currentDate = new Date(currentTime);
-    const epochTime = Math.floor(currentDate.getTime() / 1000);
+    const epochTime =
+      currentTime.current.unix() + currentTime.current.utcOffset() * 60;
     const payload = {
       currentTime: epochTime,
     };
@@ -347,7 +359,7 @@ const App = () => {
             alignItems: "center",
             padding: 4,
             borderRadius: 2,
-            minWidth: 700,
+            minWidth: { xs: 300, sm: 500, md: 700 },
             minHeight: 600,
             backgroundColor: "#ffffff",
             boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
@@ -387,10 +399,16 @@ const App = () => {
                 fontWeight: "bold",
                 textAlign: "center",
                 color: "primary.main",
-                letterSpacing: 1.5,
+                letterSpacing: 2,
               }}
             >
-              {currentTime}
+              {(() => {
+                const now = currentTime.current;
+                const hours = now.format("h");
+                const minutes = now.format("mm");
+                const ampm = now.format("A");
+                return `${hours}:${minutes} ${ampm}`;
+              })()}
             </Typography>
           </Box>
 
