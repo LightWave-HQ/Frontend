@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -39,14 +42,15 @@ jobs:
 # Step 5: Deploy to another repository
       - name: Deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.FRONTEND_DEPLOY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git clone https://x-access-token:${{ secrets.FRONTEND_DEPLOY }}@github.com/LightWave-HQ/Lightwave.git target-repo
-          rm -rf target-repo/data/*
-          cp -r dist/* target-repo/data
+          git clone https://github.com/LightWave-HQ/Lightwave.git target-repo
           cd target-repo
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/LightWave-HQ/Lightwave.git
+          rm -rf data/*
+          cp -r ../dist/* data/
           git add --all
-          git commit -m "Deploy built files"
-          git push
+          git commit -m "Deploy built files [$(date)]" || echo "No changes to commit"
+          git push origin main
